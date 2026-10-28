@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Check, RotateCcw, AlertTriangle, ShieldCheck } from 'lucide-react';
+import { X, Check, RotateCcw, AlertTriangle, ShieldCheck, ZoomIn, ZoomOut } from 'lucide-react';
 
 export default function FixModal({
   productId,
@@ -11,6 +11,10 @@ export default function FixModal({
 }) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
+  const [previewZoom, setPreviewZoom] = useState(1);
+  const [candidateImageUrl] = useState(
+    () => `${previewData.candidate_image_url}&t=${Date.now()}`
+  );
 
   const handleSave = async () => {
     try {
@@ -98,15 +102,59 @@ export default function FixModal({
             <strong>Visual Candidate Ready:</strong> Review candidate typography and positioning below before committing.
           </div>
 
-          <div style={{ textAlign: 'center', background: '#1e293b', padding: '1rem', borderRadius: '8px', overflow: 'hidden' }}>
-            <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginBottom: '0.5rem', textAlign: 'left' }}>
-              Candidate Page Rendering Preview:
+          <div style={{ background: '#1e293b', padding: '1rem', borderRadius: '8px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
+              <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
+                Candidate Page Rendering Preview:
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  style={{ padding: '0.25rem 0.4rem' }}
+                  title="Zoom out"
+                  aria-label="Zoom out candidate preview"
+                  onClick={() => setPreviewZoom((zoom) => Math.max(0.75, zoom - 0.25))}
+                  disabled={previewZoom <= 0.75}
+                >
+                  <ZoomOut size={14} />
+                </button>
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  style={{ padding: '0.25rem 0.45rem', minWidth: '46px', fontSize: '0.75rem', fontWeight: 600 }}
+                  title="Reset zoom to 100%"
+                  onClick={() => setPreviewZoom(1)}
+                >
+                  {Math.round(previewZoom * 100)}%
+                </button>
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  style={{ padding: '0.25rem 0.4rem' }}
+                  title="Zoom in"
+                  aria-label="Zoom in candidate preview"
+                  onClick={() => setPreviewZoom((zoom) => Math.min(3, zoom + 0.25))}
+                  disabled={previewZoom >= 3}
+                >
+                  <ZoomIn size={14} />
+                </button>
+              </div>
             </div>
-            <img
-              src={`${previewData.candidate_image_url}&t=${Date.now()}`}
-              alt="Candidate Preview"
-              style={{ maxWidth: '100%', maxHeight: '420px', display: 'inline-block', boxShadow: '0 4px 10px rgba(0,0,0,0.5)', background: 'white' }}
-            />
+            <div style={{ maxHeight: '420px', overflow: 'auto', textAlign: 'center', borderRadius: '4px' }}>
+              <img
+                src={candidateImageUrl}
+                alt="Candidate Preview"
+                style={{
+                  width: `${previewZoom * 100}%`,
+                  maxWidth: 'none',
+                  display: 'block',
+                  margin: '0 auto',
+                  boxShadow: '0 4px 10px rgba(0,0,0,0.5)',
+                  background: 'white'
+                }}
+              />
+            </div>
           </div>
         </div>
 
